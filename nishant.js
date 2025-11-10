@@ -1,38 +1,45 @@
+let toggleImage = false;
+const a = 5;
+const b = 6;
 
-function toggleContainer1() {
-  const text = document.getElementById("toggleText1");
-  const button = event.target;
 
+function changeDivColor(id) {
+    const colors = ['#FFD700', '#FF69B4', '#00FA9A', '#1E90FF', '#FF4500'];
+    document.getElementById(id).style.backgroundColor =
+        colors[Math.floor(Math.random() * colors.length)];
 }
 
+function showMessage(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function toggleMessage(id, btnId) {
+    const msg = document.getElementById(id);
+    const btn = document.getElementById(btnId);
+    msg.classList.toggle('hidden');
+    btn.textContent = msg.classList.contains('hidden') ? "Show Message" : "Hide Message";
+}
+
+function changeImage(id) {
+    const img = document.getElementById(id);
+    img.src = toggleImage ? "/Users/nishant/Downloads/PGSLOGO.png" : "/Users/nishant/Downloads/LOGO.png";
+    toggleImage = !toggleImage;
+}
+
+function changeBackground() {
+    const colors = ['#fffacd', '#d1f7ff', '#f0fff0', '#f5f5dc', '#ffefd5'];
+    document.body.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+}
+
+
 function showSum() {
-  let nishant = 5;
-  let shrestha = 6;
-  const sum = nishant + shrestha;
-  const result = document.getElementById("sumResult");
-  result.textContent = `The sum of ${nishant} + ${shrestha} is ${sum}.`;
+    document.getElementById("mathResult").textContent = `The sum of ${a} + ${b} = ${a + b}`;
 }
 
 function showSub() {
-  let nishant = 5;
-  let shrestha = 6;
-  const sub = nishant - shrestha;
-  const result = document.getElementById("subResult");
-  result.textContent = `The subtraction of ${nishant} - ${shrestha} is ${sub}.`;
+    document.getElementById("mathResult").textContent = `The subtraction of ${a} - ${b} = ${a - b}`;
 }
 
 function showMul() {
-  let nishant = 5;
-  let shrestha = 6;
-  const mul = nishant * shrestha;
-  const result = document.getElementById("mulResult");
-  result.textContent = `The multiplication of ${nishant} × ${shrestha} is ${mul}.`;
-}
-
-function showDiv() {
-  let nishant = 5;
-  let shrestha = 6;
-  const div = nishant / shrestha ;
-  const result = document.getElementById("divResult");
-  result.textContent = `The division of ${nishant} ÷ ${shrestha} is ${div.toFixed(2)}.`;
+    document.getElementById("mathResult").textContent = `The multiplication of ${a} × ${b} = ${a * b}`;
 }

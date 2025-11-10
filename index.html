@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Football Leagues</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provinces and Calculator</title>
     <style>
         body {
-            background-color: aqua;
+            background-color: rgb(0, 21, 255);
             margin: 0;
             padding: 20px;
-            font-family: Arial, sans-serif;
+            font-family: 'Times New Roman', Times, serif;
         }
         .container {
             display: flex;
@@ -15,12 +17,13 @@
             gap: 20px;
             justify-content: space-between;
         }
-        .league {
+        .province, .calc-container {
             padding: 15px;
             border-radius: 10px;
             width: 45%;
+            margin-bottom: 30px;
         }
-        .club {
+        .place {
             margin-top: 10px;
             border-radius: 10px;
             padding: 50px;
@@ -52,63 +55,82 @@
         button:hover {
             background-color: darkred;
         }
+        .calc-container {
+            background-color: white;
+            color: black;
+            text-align: center;
+            border: 2px solid #555;
+        }
     </style>
 </head>
 <body>
 
+    <h1 style="text-align:center; color:white;">EPL & Calculator</h1>
+
     <div class="container">
 
-        <!-- LALIGA -->
-        <div id="group1" class="league" style="background-color: #ff9999; border: 5px solid #ff0000;">
-            <h2>LALIGA</h2>
-            <div class="club" style="background-color:#003399;">Barcelona</div>
-            <div class="club" style="background-color:#ffffff; color:black;">Real Madrid</div>
-            <p class="hidden msg1">Nishant is a good person </p>
-            <button onclick="changeDivColor('group1')">Change My Color</button>
+        <!-- Province 1 -->
+        <div class="Manchester" style="background-color: #ff9999; padding:70px;">Red
+            <div class="place1" style="background-color: #0047ab; color:rgb(255, 255, 255); padding:25px;">Ronaldo</div>
+            <div class="place2" style="background-color: #ff0000; color:rgb(255, 255, 255); padding:25px;">Messi</div>
+            <p class="hidden msg1">Good Team </p>
+            <button onclick="changeDivColor('Manchester')">Change My Color</button>
         </div>
 
-        <!-- PREMIER LEAGUE -->
-        <div id="group2" class="league" style="background-color: #99ccff; border: 5px double #0000ff;">
-            <h2>PREMIER LEAGUE</h2>
-            <div class="club" style="background-color:#da291c;">Man United</div>
-            <div class="club" style="background-color:#6cabdd;">Man City</div>
-            <p id="msg2" class="hidden">Nishant is a good person </p>
+        <!-- Province 3 -->
+        <div class="Liverpool" style="background-color: #99f0ff; padding:100px;">Kloop
+            <div class="place1" style="background-color: #003399; color:white; padding:50px;">Gerrad</div>
+            <div class="place2" style="background-color: #ffffff; color:black; padding:50px;">Van Dijk</div>
+            <p id="msg2" class="hidden"> Orangee </p>
             <button onclick="showMessage('msg2')">Show Message</button>
         </div>
 
-        <!-- SERIE A -->
-        <div id="group3" class="league" style="background-color: #99ff99; border: 4px solid green;">
-            <h2>SERIE A</h2>
-            <div class="club" style="background-color:#0047ab;">Inter Milan</div>
-            <div class="club" style="background-color:#ff0000;">AC Milan</div>
-            <p id="msg3">Nishant is a good person </p>
-            <button id="toggleBtn3" onclick="toggleMessage('msg3', 'toggleBtn3')">Hide Message</button>
+        <!-- Province 5 -->
+        <div class="Aresneal" style="background-color: #99ccff; padding:80px;">Arteta
+            <div class="place1" style="background-color: #da291c; color:white; padding:20px;">Henry</div>
+            <div class="place2" style="background-color: #6cabdd; color:white; padding:30px;">Van Perise</div>
+            <p id="msg3" class="hidden">Right now on top</p>
+            <button id="toggleBtn3" onclick="toggleMessage('msg3', 'toggleBtn3')">Show Message</button>
         </div>
 
-        <!-- LIGUE 1 -->
-        <div id="group4" class="league" style="background-color: #ffcc99; border: 5px solid orange;">
-            <h2>LIGUE 1</h2>
-            <div class="club" style="background-color:#003366;">Paris Saint Germain</div>
-            <div class="club" style="background-color:#ff6600;">Lyon</div>
-            <p id="msg4" class="hidden">Nishant is a good person </p>
-            <img id="img4" src="C:\Users\nepal\OneDrive\Desktop\New folder (2)\download.jpg" alt="Team Image">
+        <!-- Province 4 -->
+        <div class="Totenam" style="background-color: #ffcc99; padding:110px;">White
+            <div class="place1" style="background-color: #003366; color:white; padding:70px;">Son</div>
+            <div class="place2" style="background-color: #ff6600; color:white; padding:35px;">Kane</div>
+            <p id="msg4" class="hidden"> 0 trophies </p>
+            <img id="img4" src="/Users/nishant/Downloads/Kane.jpg" alt="Kane">
             <button onclick="changeImage('img4')">Change Image</button>
+        </div>
+
+       
+        <div class="calc-container">
+            <h2>Simple Calculator</h2>
+            <p id="calcResult">Click a button to see the result of 5 and 6.</p>
+            <button onclick="toggleCalculation('sum')">Sum</button>
+            <button onclick="toggleCalculation('sub')">Subtraction</button>
+            <button onclick="toggleCalculation('mul')">Multiplication</button>
+            <button onclick="toggleCalculation('div')">Division</button>
         </div>
 
     </div>
 
-    <!-- 5️⃣ Button for whole page background -->
     <div style="text-align:center; margin-top:30px;">
         <button onclick="changeBackground()">Change Page Background</button>
     </div>
 
     <script>
         let toggleImage = false;
+        let calcVisible = {
+            sum: false,
+            sub: false,
+            mul: false,
+            div: false
+        };
 
         function changeDivColor(id) {
             const colors = ['#FFD700', '#FF69B4', '#00FA9A', '#1E90FF', '#FF4500'];
             const random = colors[Math.floor(Math.random() * colors.length)];
-            document.getElementById(id).style.backgroundColor = random;
+            document.querySelector(`.${id}`).style.backgroundColor = random;
         }
 
         function showMessage(id) {
@@ -130,9 +152,9 @@
         function changeImage(id) {
             const img = document.getElementById(id);
             if (toggleImage) {
-                img.src = "C:\\Users\\nepal\\OneDrive\\Desktop\\New folder (2)\\download.jpg";
+                img.src = "/Users/niri/Downloads/PGSLOGO.png";
             } else {
-                img.src = "C:\\Users\\nepal\\OneDrive\\Desktop\\New folder (2)\\wp2372393.jpg";
+                img.src = "/Users/niri/Downloads/LOGO.png";
             }
             toggleImage = !toggleImage;
         }
@@ -141,57 +163,49 @@
             const colors = ['#fffacd', '#d1f7ff', '#f0fff0', '#f5f5dc', '#ffefd5'];
             document.body.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         }
+
+        function toggleCalculation(type) {
+            const result = document.getElementById('calcResult');
+            const a = 5;
+            const b = 6;
+
+            if(type === 'sum') {
+                if(!calcVisible.sum) {
+                    result.textContent = `Sum: ${a} + ${b} = ${a+b}`;
+                } else {
+                    result.textContent = "Click a button to see the result of 5 and 6.";
+                }
+                calcVisible.sum = !calcVisible.sum;
+            }
+
+            if(type === 'sub') {
+                if(!calcVisible.sub) {
+                    result.textContent = `Subtraction: ${a} - ${b} = ${a-b}`;
+                } else {
+                    result.textContent = "Click a button to see the result of 5 and 6.";
+                }
+                calcVisible.sub = !calcVisible.sub;
+            }
+
+            if(type === 'mul') {
+                if(!calcVisible.mul) {
+                    result.textContent = `Multiplication: ${a} * ${b} = ${a*b}`;
+                } else {
+                    result.textContent = "Click a button to see the result of 5 and 6.";
+                }
+                calcVisible.mul = !calcVisible.mul;
+            }
+
+            if(type === 'div') {
+                if(!calcVisible.div) {
+                    result.textContent = `Division: ${a} / ${b} = ${(a/b).toFixed(2)}`;
+                } else {
+                    result.textContent = "Click a button to see the result of 5 and 6.";
+                }
+                calcVisible.div = !calcVisible.div;
+            }
+        }
     </script>
-
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Container Actions</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f1f1f1;
-      text-align: center;
-      padding: 20px;
-    }
-    .container {
-      border: 2px solid #555;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 15px auto;
-      width: 300px;
-      background-color: white;
-    }
-    button {
-      margin-top: 10px;
-      padding: 8px 15px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Nishant Shrestha</h1>
-
-  <div class="container" id="container6">
-    <p id="sumResult">Click the button to show the sum of 5 + 6.</p>
-    <button onclick="showSum()">Show Sum</button>
-  </div>
-
-
-  <script src="nishant.js"></script>
 
 </body>
 </html>
