@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Football Leagues</title>
+    <style>
+        body {
+            background-color: aqua;
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .league {
+            padding: 15px;
+            border-radius: 10px;
+            width: 45%;
+        }
+        .club {
+            margin-top: 10px;
+            border-radius: 10px;
+            padding: 50px;
+            color: white;
+        }
+        img {
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+            color: darkblue;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: navy;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- LALIGA -->
+        <div id="group1" class="league" style="background-color: #ff9999; border: 5px solid #ff0000;">
+            <h2>LALIGA</h2>
+            <div class="club" style="background-color:#003399;">Barcelona</div>
+            <div class="club" style="background-color:#ffffff; color:black;">Real Madrid</div>
+            <p class="hidden msg1">Nishant is a good person </p>
+            <button onclick="changeDivColor('group1')">Change My Color</button>
+        </div>
+
+        <!-- PREMIER LEAGUE -->
+        <div id="group2" class="league" style="background-color: #99ccff; border: 5px double #0000ff;">
+            <h2>PREMIER LEAGUE</h2>
+            <div class="club" style="background-color:#da291c;">Man United</div>
+            <div class="club" style="background-color:#6cabdd;">Man City</div>
+            <p id="msg2" class="hidden">Nishant is a good person </p>
+            <button onclick="showMessage('msg2')">Show Message</button>
+        </div>
+
+        <!-- SERIE A -->
+        <div id="group3" class="league" style="background-color: #99ff99; border: 4px solid green;">
+            <h2>SERIE A</h2>
+            <div class="club" style="background-color:#0047ab;">Inter Milan</div>
+            <div class="club" style="background-color:#ff0000;">AC Milan</div>
+            <p id="msg3">Nishant is a good person </p>
+            <button id="toggleBtn3" onclick="toggleMessage('msg3', 'toggleBtn3')">Hide Message</button>
+        </div>
+
+        <!-- LIGUE 1 -->
+        <div id="group4" class="league" style="background-color: #ffcc99; border: 5px solid orange;">
+            <h2>LIGUE 1</h2>
+            <div class="club" style="background-color:#003366;">Paris Saint Germain</div>
+            <div class="club" style="background-color:#ff6600;">Lyon</div>
+            <p id="msg4" class="hidden">Nishant is a good person </p>
+            <img id="img4" src="C:\Users\nepal\OneDrive\Desktop\New folder (2)\download.jpg" alt="Team Image">
+            <button onclick="changeImage('img4')">Change Image</button>
+        </div>
+
+    </div>
+
+    <!-- 5️⃣ Button for whole page background -->
+    <div style="text-align:center; margin-top:30px;">
+        <button onclick="changeBackground()">Change Page Background</button>
+    </div>
+
+    <script>
+        let toggleImage = false;
+
+        function changeDivColor(id) {
+            const colors = ['#FFD700', '#FF69B4', '#00FA9A', '#1E90FF', '#FF4500'];
+            const random = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById(id).style.backgroundColor = random;
+        }
+
+        function showMessage(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function toggleMessage(id, btnId) {
+            const msg = document.getElementById(id);
+            const btn = document.getElementById(btnId);
+            if (msg.classList.contains('hidden')) {
+                msg.classList.remove('hidden');
+                btn.textContent = "Hide Message";
+            } else {
+                msg.classList.add('hidden');
+                btn.textContent = "Show Message";
+            }
+        }
+
+        function changeImage(id) {
+            const img = document.getElementById(id);
+            if (toggleImage) {
+                img.src = "C:\\Users\\nepal\\OneDrive\\Desktop\\New folder (2)\\download.jpg";
+            } else {
+                img.src = "C:\\Users\\nepal\\OneDrive\\Desktop\\New folder (2)\\wp2372393.jpg";
+            }
+            toggleImage = !toggleImage;
+        }
+
+        function changeBackground() {
+            const colors = ['#fffacd', '#d1f7ff', '#f0fff0', '#f5f5dc', '#ffefd5'];
+            document.body.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Container Actions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      border: 2px solid #555;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px auto;
+      width: 300px;
+      background-color: white;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Nishant Shrestha</h1>
+
+  <div class="container" id="container6">
+    <p id="sumResult">Click the button to show the sum of 5 + 6.</p>
+    <button onclick="showSum()">Show Sum</button>
+  </div>
+
+
+  <script src="nishant.js"></script>
+
+</body>
+</html>
