@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transform: translateX(-100vw);
+        }
+
+        .box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+
+        #startBtn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 18px;
+            background: #fff;
+            color: #667eea;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        #startBtn:hover {
+            transform: scale(1.05);
+        }
+
+        #startBtn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="animatedDiv" class="box">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" alt="Mountain" id="photo">
+        </div>
+        <button id="startBtn">Start Animation</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
