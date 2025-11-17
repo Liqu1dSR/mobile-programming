@@ -1,65 +1,104 @@
-// script.js - JavaScript Animation File
-
-const animatedDiv = document.getElementById('animatedDiv');
-const photo = document.getElementById('photo');
-const startBtn = document.getElementById('startBtn');
-
-// Photo URLs to switch between
-const photos = [
-    'james-doakes1753344838-0-412x290.webp',
-    'IMG_6273.JPG'
-];
-
-let currentPhotoIndex = 0;
-
-function animate() {
-    // Disable button during animation
-    startBtn.disabled = true;
+$(document).ready(function () {
+    const $navLinks = $("#navLinks");
+    const $hamburger = $("#hamburgerBtn");
+    const $closeBtn = $("#closeBtn");
     
-    // Step 1: Slide in from right
-    animatedDiv.style.transition = 'transform 1s ease-out';
-    animatedDiv.style.transform = 'translateX(0)';
+    $hamburger.click(function () {
+        $navLinks.toggleClass("active");
+    });
     
-    setTimeout(() => {
-        // Step 2: Height up, Width up
-        animatedDiv.style.transition = 'width 0.8s ease, height 0.8s ease';
-        animatedDiv.style.width = '400px';
-        animatedDiv.style.height = '400px';
+
+    $closeBtn.click(function () {
+        $navLinks.removeClass("active");
+    });
+    
+    // Close menu when clicking on any nav link
+    $navLinks.find("a").click(function () {
+        if ($(window).width() <= 700) {
+            $navLinks.removeClass("active");
+        }
+    });
+    
+    // Close menu when clicking outside of it
+    $(document).click(function (event) {
+        if ($(window).width() <= 700) {
+            // Check if click is outside menu and hamburger button
+            if (!$(event.target).closest('.nav-links').length && 
+                !$(event.target).closest('.hamburger').length) {
+                $navLinks.removeClass("active");
+            }
+        }
+    });
+    
+    // on resize ensure proper layout:
+    function onResize() {
+        if ($(window).width() > 700) {
+            // show and ensure horizontal layout
+            $navLinks.show();
+            $navLinks.removeClass("active");
+            $navLinks.css({
+                "display": "flex",
+                "flex-direction": "",
+                "position": "",
+                "top": "",
+                "right": ""
+            });
+        } else {
+            // smaller screens: show but positioned off-screen
+            $navLinks.show();
+            $navLinks.css({
+                "display": "flex",
+                "flex-direction": "column"
+            });
+        }
+    }
+    
+    // run once on load and on resize
+    onResize();
+    $(window).on("resize", function () {
+        onResize();
+    });
+    
+    // ---------- Image animation (runs once per click) ----------
+    const imgA = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500";
+    const imgB = "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=500";
+    let toggleImage = false;
+    let animating = false;
+    
+    $("#animateBtn").click(function () {
+        if (animating) return;
+        animating = true;
+        $("#animateBtn").prop("disabled", true);
+        const $photo = $("#photo");
         
-        setTimeout(() => {
-            // Step 3: Change photo and lower opacity
-            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
-            photo.style.opacity = '0.3';
-            
-            setTimeout(() => {
-                photo.src = photos[currentPhotoIndex];
-                
-                setTimeout(() => {
-                    // Step 4: Height low, Width low
-                    animatedDiv.style.transition = 'width 0.8s ease, height 0.8s ease';
-                    animatedDiv.style.width = '150px';
-                    animatedDiv.style.height = '150px';
-                    
-                    setTimeout(() => {
-                        // Step 5: Opacity back to normal
-                        photo.style.opacity = '1';
-                        
-                        setTimeout(() => {
-                            // Step 6: Return to original position and size
-                            animatedDiv.style.transition = 'width 0.8s ease, height 0.8s ease';
-                            animatedDiv.style.width = '200px';
-                            animatedDiv.style.height = '200px';
-                            
-                            setTimeout(() => {
-                                // Re-enable button
-                                startBtn.disabled = false;
-                            }, 800);
-                        }, 500);
-                    }, 800);
-                }, 300);
-            }, 500);
-        }, 800);
-    }, 1000);
-}
-
-startBtn.addEventListener('click', animate);
+        $photo.css({
+            left: $photo.css("left") || "0px",
+            width: $photo.width() + "px",
+            height: $photo.height() + "px",
+            opacity: 1
+        });
+        
+        $photo
+            .animate({ left: "+=200px" }, 1500)
+            .animate({ width: "400px", height: "400px" }, 1500)
+            .queue(function (next) {
+                if (!toggleImage) {
+                    $photo.attr("src", imgB);
+                } else {
+                    $photo.attr("src", imgA);
+                }
+                toggleImage = !toggleImage;
+                next();
+            })
+            .animate({ opacity: 0.3, width: "150px", height: "150px" }, 1500)
+            .animate({
+                left: "0px",
+                width: "250px",
+                height: "250px",
+                opacity: 1
+            }, 1500, function () {
+                animating = false;
+                $("#animateBtn").prop("disabled", false);
+            });
+    });
+});
