@@ -1,606 +1,284 @@
-// App.js - Main Application File
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from "react";
 import {
   SafeAreaView,
-  StyleSheet,
-  Text,
   View,
+  Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  Alert,
-  Platform,
-  StatusBar,
+  StyleSheet,
   Animated,
-  Dimensions,
-  Modal,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
 
-const { width, height } = Dimensions.get('window');
+export default function App() {
+  const [taskText, setTaskText] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const slideAnim = useRef(new Animated.Value(-240)).current;
 
-// Hamburger Menu Component
-const HamburgerMenu = ({ visible, onClose, onClearAll, taskCount, activeCount, completedCount }) => {
-  const slideAnim = React.useRef(new Animated.Value(-width * 0.75)).current;
-
-  useEffect(() => {
+  const toggleMenu = () => {
+    const toValue = menuOpen ? -240 : 0;
+    setMenuOpen(!menuOpen);
     Animated.timing(slideAnim, {
-      toValue: visible ? 0 : -width * 0.75,
-      duration: 300,
+      toValue,
+      duration: 250,
       useNativeDriver: true,
     }).start();
-  }, [visible]);
-
-  if (!visible) return null;
-
-  return (
-    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={onClose}>
-        <Animated.View style={[styles.menuContainer, { transform: [{ translateX: slideAnim }] }]}>
-          <View style={styles.menuHeader}>
-            <Text style={styles.menuTitle}>✅ Menu</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeButton}>✕</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.menuContent}>
-            <TouchableOpacity style={styles.menuItem} onPress={() => {
-              Alert.alert(
-                'Task Statistics',
-                `Total: ${taskCount} tasks\nActive: ${activeCount}\nCompleted: ${completedCount}`,
-                [{ text: 'OK' }]
-              );
-            }}>
-              <Text style={styles.menuIcon}>📊</Text>
-              <Text style={styles.menuText}>Statistics</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem} onPress={() => {
-              onClose();
-              onClearAll();
-            }}>
-              <Text style={styles.menuIcon}>🗑️</Text>
-              <Text style={styles.menuText}>Clear All Tasks</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuIcon}>⚙️</Text>
-              <Text style={styles.menuText}>Settings</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem} onPress={() => {
-              Alert.alert(
-                'About',
-                'Task Manager v1.0\nBuilt with React Native',
-                [{ text: 'OK' }]
-              );
-            }}>
-              <Text style={styles.menuIcon}>ℹ️</Text>
-              <Text style={styles.menuText}>About</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.menuFooter}>
-            <Text style={styles.footerText}>React Native Task Manager</Text>
-            <Text style={styles.footerText}>Version 1.0</Text>
-          </View>
-        </Animated.View>
-      </TouchableOpacity>
-    </Modal>
-  );
-};
-
-// Task Item Component
-const TaskItem = ({ task, onToggle, onDelete }) => {
-  const fadeAnim = React.useRef(new Animated.Value(1)).current;
-
-  const handleDelete = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => onDelete(task.id));
-  };
-
-  return (
-    <Animated.View style={[styles.taskItem, { opacity: fadeAnim }]}>
-      <TouchableOpacity
-        style={styles.taskContent}
-        onPress={() => onToggle(task.id)}
-        activeOpacity={0.7}
-      >
-        <View style={[
-          styles.checkbox,
-          task.completed && styles.checkboxCompleted
-        ]}>
-          {task.completed && <Text style={styles.checkmark}>✓</Text>}
-        </View>
-        <Text style={[
-          styles.taskText,
-          task.completed && styles.taskTextCompleted
-        ]}>
-          {task.text}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handleDelete}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteButtonText}>🗑️</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-};
-
-// Main App Component
-const App = () => {
-  const [tasks, setTasks] = useState([]);
-  const [inputText, setInputText] = useState('');
-  const [filter, setFilter] = useState('all');
-  const [menuVisible, setMenuVisible] = useState(false);
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  useEffect(() => {
-    saveTasks();
-  }, [tasks]);
-
-  const loadTasks = async () => {
-    try {
-      const storedTasks = await AsyncStorage.getItem('tasks');
-      if (storedTasks !== null) {
-        setTasks(JSON.parse(storedTasks));
-      }
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-    }
-  };
-
-  const saveTasks = async () => {
-    try {
-      await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
-    } catch (error) {
-      console.error('Error saving tasks:', error);
-    }
   };
 
   const addTask = () => {
-    if (inputText.trim() === '') {
-      Alert.alert('Empty Task', 'Please enter a task description');
-      return;
-    }
-
-    const newTask = {
-      id: Date.now().toString(),
-      text: inputText.trim(),
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    setTasks([newTask, ...tasks]);
-    setInputText('');
+    const text = taskText.trim();
+    if (!text) return;
+    setTasks((prev) => [
+      ...prev,
+      { id: Date.now().toString(), text, done: false },
+    ]);
+    setTaskText("");
   };
 
   const toggleTask = (id) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
+    );
   };
 
   const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const clearCompleted = () => {
-    Alert.alert(
-      'Clear Completed',
-      'Are you sure you want to delete all completed tasks?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => setTasks(tasks.filter(task => !task.completed))
-        }
-      ]
-    );
-  };
-
-  const clearAllTasks = () => {
-    Alert.alert(
-      'Clear All Tasks',
-      'Are you sure you want to delete ALL tasks?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete All',
-          style: 'destructive',
-          onPress: () => {
-            setTasks([]);
-            setMenuVisible(false);
-          }
-        }
-      ]
-    );
-  };
-
-  const getFilteredTasks = () => {
-    switch (filter) {
-      case 'active':
-        return tasks.filter(task => !task.completed);
-      case 'completed':
-        return tasks.filter(task => task.completed);
-      default:
-        return tasks;
-    }
-  };
-
-  const filteredTasks = getFilteredTasks();
-  const activeCount = tasks.filter(task => !task.completed).length;
-  const completedCount = tasks.filter(task => task.completed).length;
+  const renderItem = ({ item }) => (
+    <View style={styles.taskItem}>
+      <TouchableOpacity onPress={() => toggleTask(item.id)}>
+        <View style={[styles.checkCircle, item.done && styles.checkCircleOn]}>
+          {item.done && <Text style={styles.checkMark}>✓</Text>}
+        </View>
+      </TouchableOpacity>
+      <Text style={[styles.taskText, item.done && styles.taskDone]}>
+        {item.text}
+      </Text>
+      <TouchableOpacity onPress={() => deleteTask(item.id)}>
+        <Text style={styles.delete}>✕</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#6200ee" />
-      
-      {/* Hamburger Menu */}
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-        onClearAll={clearAllTasks}
-        taskCount={tasks.length}
-        activeCount={activeCount}
-        completedCount={completedCount}
-      />
-      
-      {/* Header with Hamburger Button */}
+    <SafeAreaView style={styles.root}>
+      {/* Top bar */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.hamburgerButton}
-          onPress={() => setMenuVisible(true)}
-        >
-          <View style={styles.hamburgerLine} />
-          <View style={styles.hamburgerLine} />
-          <View style={styles.hamburgerLine} />
+        <TouchableOpacity onPress={toggleMenu}>
+          <Text style={styles.menuIcon}>☰</Text>
         </TouchableOpacity>
-        
-        <View style={styles.headerContent}>
-          <Text style={styles.title}>✅ Task Manager</Text>
-          <Text style={styles.subtitle}>
-            {activeCount} active • {completedCount} completed
-          </Text>
+        <View>
+          <Text style={styles.title}>Task Manager</Text>
+          <Text style={styles.subtitle}>React Native Demo</Text>
         </View>
       </View>
 
-      {/* Input Section */}
-      <View style={styles.inputContainer}>
+      {/* Input row */}
+      <View style={styles.inputRow}>
         <TextInput
           style={styles.input}
           placeholder="Add a new task..."
-          placeholderTextColor="#999"
-          value={inputText}
-          onChangeText={setInputText}
-          onSubmitEditing={addTask}
-          returnKeyType="done"
+          placeholderTextColor="#9ca3af"
+          value={taskText}
+          onChangeText={setTaskText}
         />
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <Text style={styles.addButtonText}>+</Text>
+        <TouchableOpacity style={styles.addBtn} onPress={addTask}>
+          <Text style={styles.addText}>Add</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Filter Buttons */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterButton, filter === 'all' && styles.filterButtonActive]}
-          onPress={() => setFilter('all')}
-        >
-          <Text style={[styles.filterText, filter === 'all' && styles.filterTextActive]}>
-            All
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterButton, filter === 'active' && styles.filterButtonActive]}
-          onPress={() => setFilter('active')}
-        >
-          <Text style={[styles.filterText, filter === 'active' && styles.filterTextActive]}>
-            Active
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterButton, filter === 'completed' && styles.filterButtonActive]}
-          onPress={() => setFilter('completed')}
-        >
-          <Text style={[styles.filterText, filter === 'completed' && styles.filterTextActive]}>
-            Completed
-          </Text>
-        </TouchableOpacity>
+      {/* Stats pill */}
+      <View style={styles.statsRow}>
+        <Text style={styles.statsText}>
+          Total: {tasks.length} • Done: {tasks.filter((t) => t.done).length}
+        </Text>
       </View>
 
-      {/* Task List */}
-      {filteredTasks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>
-            {filter === 'active' ? 'No active tasks' :
-             filter === 'completed' ? 'No completed tasks' :
-             'No tasks yet. Add one above!'}
+      {/* Task list */}
+      <FlatList
+        data={tasks}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={
+          tasks.length === 0 ? styles.emptyContainer : undefined
+        }
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            No tasks yet. Add one above ✨
           </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredTasks}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <TaskItem
-              task={item}
-              onToggle={toggleTask}
-              onDelete={deleteTask}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-        />
-      )}
+        }
+      />
 
-      {/* Clear Completed Button */}
-      {completedCount > 0 && (
-        <TouchableOpacity
-          style={styles.clearButton}
-          onPress={clearCompleted}
-        >
-          <Text style={styles.clearButtonText}>Clear Completed</Text>
+      {/* Slide-in hamburger menu */}
+      <Animated.View
+        style={[
+          styles.menuContainer,
+          { transform: [{ translateX: slideAnim }] },
+        ]}
+      >
+        <Text style={styles.menuTitle}>Menu</Text>
+        <Text style={styles.menuItem}>All Tasks: {tasks.length}</Text>
+        <Text style={styles.menuItem}>
+          Completed: {tasks.filter((t) => t.done).length}
+        </Text>
+        <Text style={styles.menuItem}>
+          Pending: {tasks.filter((t) => !t.done).length}
+        </Text>
+        <TouchableOpacity style={styles.menuClose} onPress={toggleMenu}>
+          <Text style={styles.menuCloseText}>Close</Text>
         </TouchableOpacity>
-      )}
-
-      {/* Platform Info */}
-      <Text style={styles.platformText}>
-        Running on: {Platform.OS === 'ios' ? 'iOS' : 'Android'}
-      </Text>
+      </Animated.View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#020617",
+    paddingHorizontal: 18,
+    paddingTop: 10,
   },
   header: {
-    backgroundColor: '#6200ee',
-    padding: 20,
-    paddingTop: Platform.OS === 'android' ? 20 : 10,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 18,
   },
-  hamburgerButton: {
-    padding: 10,
-    marginRight: 15,
-  },
-  hamburgerLine: {
-    width: 25,
-    height: 3,
-    backgroundColor: '#fff',
-    marginVertical: 3,
-    borderRadius: 2,
-  },
-  headerContent: {
-    flex: 1,
+  menuIcon: {
+    fontSize: 28,
+    color: "white",
+    marginRight: 14,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
+    color: "white",
+    fontSize: 22,
+    fontWeight: "700",
   },
   subtitle: {
-    fontSize: 14,
-    color: '#e0e0e0',
-    marginTop: 5,
+    color: "#9ca3af",
+    fontSize: 13,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 15,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  inputRow: {
+    flexDirection: "row",
+    marginBottom: 12,
   },
   input: {
     flex: 1,
-    height: 50,
+    backgroundColor: "#020617",
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    borderColor: "#334155",
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    color: "white",
+    height: 44,
   },
-  addButton: {
-    width: 50,
-    height: 50,
-    backgroundColor: '#6200ee',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
+  addBtn: {
+    marginLeft: 8,
+    backgroundColor: "#22c55e",
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    justifyContent: "center",
   },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: 'bold',
+  addText: {
+    color: "white",
+    fontWeight: "600",
   },
-  filterContainer: {
-    flexDirection: 'row',
-    padding: 15,
-    backgroundColor: '#fff',
-    justifyContent: 'space-around',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  statsRow: {
+    marginBottom: 10,
+    alignItems: "flex-start",
   },
-  filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-  },
-  filterButtonActive: {
-    backgroundColor: '#6200ee',
-  },
-  filterText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
-  },
-  filterTextActive: {
-    color: '#fff',
-  },
-  listContent: {
-    padding: 15,
+  statsText: {
+    color: "#e5e7eb",
+    fontSize: 13,
   },
   taskItem: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#020617",
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "#1f2937",
   },
-  taskContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+  checkCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: "#4b5563",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#6200ee',
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+  checkCircleOn: {
+    backgroundColor: "#22c55e",
+    borderColor: "#22c55e",
   },
-  checkboxCompleted: {
-    backgroundColor: '#6200ee',
-  },
-  checkmark: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  checkMark: {
+    color: "white",
+    fontSize: 14,
   },
   taskText: {
-    fontSize: 16,
-    color: '#333',
     flex: 1,
+    color: "white",
+    fontSize: 15,
   },
-  taskTextCompleted: {
-    textDecorationLine: 'line-through',
-    color: '#999',
+  taskDone: {
+    textDecorationLine: "line-through",
+    color: "#9ca3af",
   },
-  deleteButton: {
-    padding: 10,
+  delete: {
+    color: "#f97316",
+    fontSize: 18,
+    marginLeft: 10,
   },
-  deleteButtonText: {
-    fontSize: 20,
+  emptyContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#999',
-    textAlign: 'center',
-  },
-  clearButton: {
-    margin: 15,
-    backgroundColor: '#ff5252',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  clearButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  platformText: {
-    textAlign: 'center',
-    color: '#999',
-    fontSize: 12,
-    padding: 10,
-  },
-  // Hamburger Menu Styles
-  menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  emptyText: {
+    color: "#6b7280",
+    fontSize: 14,
   },
   menuContainer: {
-    width: width * 0.75,
-    height: height,
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
-  },
-  menuHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: 240,
+    backgroundColor: "#020617",
+    paddingTop: 60,
+    paddingHorizontal: 18,
+    borderRightWidth: 1,
+    borderRightColor: "#1f2937",
   },
   menuTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#6200ee',
-  },
-  closeButton: {
-    fontSize: 30,
-    color: '#666',
-    fontWeight: '300',
-  },
-  menuContent: {
-    flex: 1,
-    paddingTop: 20,
+    color: "white",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 16,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    color: "#e5e7eb",
+    fontSize: 14,
+    marginBottom: 8,
   },
-  menuIcon: {
-    fontSize: 24,
-    marginRight: 15,
+  menuClose: {
+    marginTop: 24,
+    alignSelf: "flex-start",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#4b5563",
   },
-  menuText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  menuFooter: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-    marginVertical: 2,
+  menuCloseText: {
+    color: "#e5e7eb",
+    fontSize: 14,
   },
 });
-
-export default App;
