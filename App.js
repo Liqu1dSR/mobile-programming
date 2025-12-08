@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   SafeAreaView,
   View,
@@ -10,15 +10,53 @@ import {
   Animated,
 } from "react-native";
 
+import { initializeApp } from "firebase/app";
+import {
+  getDatabase,
+  ref,
+  push,
+  onValue,
+  update,
+  remove,
+} from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4BF5xMhYfM7iil385Jnp56yf5pz4gNcE",
+  authDomain: "taskmanagerapp-93487.firebaseapp.com",
+  projectId: "taskmanagerapp-93487",
+  storageBucket: "taskmanagerapp-93487.firebasestorage.app",
+  messagingSenderId: "967600831110",
+  appId: "1:967600831110:web:deccd71c2d874530532f07"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 export default function App() {
   const [taskText, setTaskText] = useState("");
   const [tasks, setTasks] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const slideAnim = useRef(new Animated.Value(-240)).current;
 
+  useEffect(() => {
+    const tasksRef = ref(db, "tasks");
+
+    const unsubscribe = onValue(tasksRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const list = Object.keys(data).map((id) => ({
+        id,
+        ...data[id],
+      }));
+      setTasks(list);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const toggleMenu = () => {
     const toValue = menuOpen ? -240 : 0;
     setMenuOpen(!menuOpen);
+
     Animated.timing(slideAnim, {
       toValue,
       duration: 250,
@@ -26,36 +64,41 @@ export default function App() {
     }).start();
   };
 
-  const addTask = () => {
+  const addTask = async () => {
     const text = taskText.trim();
     if (!text) return;
-    setTasks((prev) => [
-      ...prev,
-      { id: Date.now().toString(), text, done: false },
-    ]);
+
+    const tasksRef = ref(db, "tasks");
+
+    await push(tasksRef, {
+      text,
+      done: false,
+      createdAt: Date.now(),
+    });
+
     setTaskText("");
   };
 
-  const toggleTask = (id) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
-    );
+  const toggleTask = async (id, done) => {
+    await update(ref(db, `tasks/${id}`), { done: !done });
   };
 
-  const deleteTask = (id) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  const deleteTask = async (id) => {
+    await remove(ref(db, `tasks/${id}`));
   };
 
   const renderItem = ({ item }) => (
     <View style={styles.taskItem}>
-      <TouchableOpacity onPress={() => toggleTask(item.id)}>
+      <TouchableOpacity onPress={() => toggleTask(item.id, item.done)}>
         <View style={[styles.checkCircle, item.done && styles.checkCircleOn]}>
           {item.done && <Text style={styles.checkMark}>✓</Text>}
         </View>
       </TouchableOpacity>
+
       <Text style={[styles.taskText, item.done && styles.taskDone]}>
         {item.text}
       </Text>
+
       <TouchableOpacity onPress={() => deleteTask(item.id)}>
         <Text style={styles.delete}>✕</Text>
       </TouchableOpacity>
@@ -64,18 +107,17 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.root}>
-      {/* Top bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={toggleMenu}>
           <Text style={styles.menuIcon}>☰</Text>
         </TouchableOpacity>
+
         <View>
           <Text style={styles.title}>Task Manager</Text>
-          <Text style={styles.subtitle}>React Native Demo</Text>
+          <Text style={styles.subtitle}>Realtime DB Version</Text>
         </View>
       </View>
 
-      {/* Input row */}
       <View style={styles.inputRow}>
         <TextInput
           style={styles.input}
@@ -89,14 +131,12 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Stats pill */}
       <View style={styles.statsRow}>
         <Text style={styles.statsText}>
           Total: {tasks.length} • Done: {tasks.filter((t) => t.done).length}
         </Text>
       </View>
 
-      {/* Task list */}
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
@@ -105,13 +145,10 @@ export default function App() {
           tasks.length === 0 ? styles.emptyContainer : undefined
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            No tasks yet. Add one above ✨
-          </Text>
+          <Text style={styles.emptyText}>No tasks yet. Add one above ✨</Text>
         }
       />
 
-      {/* Slide-in hamburger menu */}
       <Animated.View
         style={[
           styles.menuContainer,
@@ -126,6 +163,7 @@ export default function App() {
         <Text style={styles.menuItem}>
           Pending: {tasks.filter((t) => !t.done).length}
         </Text>
+
         <TouchableOpacity style={styles.menuClose} onPress={toggleMenu}>
           <Text style={styles.menuCloseText}>Close</Text>
         </TouchableOpacity>
